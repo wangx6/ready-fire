@@ -1,9 +1,6 @@
-const {spawn}  = require('child_process');
 const express = require('express');
 const bodyParser = require('body-parser');
-const util = require('./util');
 const testManager = require('./testManager');
-
 const PORT = 8080;
 
 // middle ware
@@ -13,11 +10,9 @@ app.use(bodyParser.json())
 
 // run test
 app.post('/runtest', (req, res) => {
-    const tid = util.genKey();
-    const { body } = req;
-
-    testManager.runTest(tid, body);
-    res.json({ok: true, data: {tid}});
+    const { config } = req.body;
+    testManager.runTest(config);
+    res.json({ok: true, data: {}});
 });
 
 // health check
