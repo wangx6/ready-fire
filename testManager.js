@@ -1,5 +1,6 @@
 const util = require('./util');
 const {spawn} = require('child_process');
+const reportManager = require('./reportManager');
 
 function createThreads(options) {
     const ps = [];
@@ -13,10 +14,13 @@ function createThreads(options) {
 function runTest(config) {
     const options = {tid: util.genKey(), ...config};
     const ps = createThreads(options);
+
+    const rm = reportManager(options.tid);
     
     let responses = ps.map((p) => {
         return new Promise((res, rej) => {
             p.stdout.on('data', (data) => {
+                rm.appendRecordToReportFile([JSON.parse(data.toString())]);
                 res(data.toString());
             });
             p.on('exit', (code) => {
