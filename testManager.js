@@ -1,40 +1,30 @@
 const util = require('./util');
-const {spawn} = require('child_process');
 const reportManager = require('./reportManager');
+const { Worker } = require('worker_threads');
 
-function createThreads(options) {
-    const ps = [];
-    const args = Object.keys(options).map(key => `${key}=${JSON.stringify(options[key])}`);
-    for(let i = 0; i < options.concurrentUser; i++) {
-        ps.push(spawn('node', ['loadTest.js', ...args]));
-    }
-    return ps;
-};
+const cache = {};
 
-function runTest(config) {
-    const options = {tid: util.genKey(), ...config};
-    const ps = createThreads(options);
-
-    const rm = reportManager(options.tid);
-    
-    let responses = ps.map((p) => {
-        return new Promise((res, rej) => {
-            p.stdout.on('data', (data) => {
-                rm.appendRecordToReportFile([JSON.parse(data.toString())]);
-                res(data.toString());
-            });
-            p.on('exit', (code) => {
-                console.log(`Exit code:: ${code}`);
-            });
-        });
+const runTest = (config) => {
+    const tid = util.genKey('tid');
+    const w = new Worker(__dirname + '/loadTest.js', {
+        workerData: {...config, tid},
     });
 
-    Promise.all(responses).then((r) => {
-        console.log('###############');
-        console.log(r);
+    cache[tid] = w;
+    w.on('exit', () => {
+        console.log('Test complete:: '+ tid);
+        delete cache[tid]
+    })
+    w.on('message', (message) => {
+        console.log(message);
     });
+
+}
+
+function getCount(){
+    return Object.keys(cache).length;
 }
 
 module.exports = {
-    runTest,
+    runTest, getCount
 }

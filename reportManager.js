@@ -4,11 +4,11 @@ function reportManager(tid) {
     const csvWriter = createCsvWriter({
         path: `./reports/${tid}.csv`,
         header: [
-            {id: 'tid', title: 'tid'},
+            {id: 'rid', title: 'rid'},
             {id: 'data', title: 'data'},
-            {id: 'duration', title: 'duration'},
-            {id: 'startTime', title: 'startTime'},
-            {id: 'endTime', title: 'endTime'},
+            // {id: 'duration', title: 'duration'},
+            // {id: 'startTime', title: 'startTime'},
+            // {id: 'endTime', title: 'endTime'},
         ]
     });
 

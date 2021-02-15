@@ -11,8 +11,12 @@ app.use(bodyParser.json())
 // run test
 app.post('/runtest', (req, res) => {
     const { config } = req.body;
-    testManager.runTest(config);
-    res.json({ok: true, data: {}});
+    if(testManager.getCount() >= 5) {
+        res.json({ ok: false, error: ['buffer queue is full atm'] });
+    } else {
+        testManager.runTest(config);
+        res.json({ok: true, data: {}});
+    }
 });
 
 // health check

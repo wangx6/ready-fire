@@ -1,6 +1,7 @@
 const {v4: uuid} = require('uuid');
-const genKey = () => {
-    return uuid();
+const genKey = (prefix) => {
+    prefix = prefix ?  `${prefix}-` : '';
+    return `${prefix}${Math.random().toString(32).substr(2)}`;
 }
 const argsHandler = (args) => {
     const t = {};
