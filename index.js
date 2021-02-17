@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const testManager = require('./testManager');
+const rs = require('./response')();
 const PORT = 8080;
 
 // middle ware
@@ -8,20 +9,42 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-// run test
-app.post('/runtest', (req, res) => {
+/**
+ * run test
+ * param {  }
+ * return {  }
+ */
+app.post('/run-test', (req, res) => {
     const { config } = req.body;
-    if(testManager.getCount() >= 5) {
-        res.json({ ok: false, error: ['buffer queue is full atm'] });
+    if(testManager.hasFreeWorker()) {
+        const tid = testManager.runTest(config, testManager.getFreeWorker());
+        res.json(rs.done({tid}));
     } else {
-        testManager.runTest(config);
-        res.json({ok: true, data: {}});
+        res.json(rs.fail('buffer queue is full atm'));
     }
 });
 
-// health check
-app.post('/healthcheck', (req, res) => {
-    res.json({ok: true});
+/**
+ * 
+ * param {  }
+ * return {  }
+ */
+app.get('/status', (req, res) => {
+    const {tid} = req.query;
+    if(tid) {
+        res.json(rs.done());
+    } else{
+        res.json(rs.fail([]));
+    }
+});
+
+/**
+ * health check
+ * param {  }
+ * return {  }
+ */
+app.post('/health-check', (req, res) => {
+    res.json(rs.done([]));
 });
 
 // start the api

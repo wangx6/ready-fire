@@ -5,6 +5,7 @@ function reportManager(tid) {
         path: `./reports/${tid}.csv`,
         header: [
             {id: 'rid', title: 'rid'},
+            {id: 'dateTime', title: 'dateTime'},
             {id: 'data', title: 'data'},
             // {id: 'duration', title: 'duration'},
             // {id: 'startTime', title: 'startTime'},
